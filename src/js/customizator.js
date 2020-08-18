@@ -1,12 +1,49 @@
 export default class Customizator {
     constructor() {
-
-    }
-
-    render() {
         this.btnBlock = document.createElement('div');
         this.colorPicker = document.createElement('input');
 
+        this.btnBlock.addEventListener('click', (e) => this.onScaleChange(e));
+        this.colorPicker.addEventListener('input', (e) => this.onColorChange(e));
+
+    }
+
+    onScaleChange(e) {
+        let scale;
+        const body = document.querySelector('body');
+        if(e.target.value) {
+            scale = +e.target.value.replace(/x/g, '');
+        };
+
+        function recursion(element) {
+            element.childNodes.forEach(node => {
+                if(node.nodeName === '#text' && node.nodeValue.replace(/\s+/g, '').length > 0) {
+
+                    if(!node.parentNode.getAttribute('data-fs')) {
+                        let value = window.getComputedStyle(node.parentNode, null).fontSize;
+                        node.parentNode.setAttribute('data-fs', +value.replace(/px/g, '')); // запоминаем исзодные значения с помощью data-attribute, для возврата к исходному масштабу
+                        node.parentNode.style.fontSize = node.parentNode.getAttribute('data-fs')  * scale + 'px';
+                    } else {
+                        node.parentNode.style.fontSize = node.parentNode.getAttribute('data-fs')  * scale + 'px';
+                    }
+
+                    
+                } else {
+                    recursion(node);
+                }
+            });
+        };
+
+        recursion(body);
+    }
+
+    onColorChange(e) {
+        const body = document.querySelector('body');
+        body.style.backgroundColor = e.target.value;
+        console.log(e.target.value);
+    }
+
+    render() {
         let scaleInputS = document.createElement('input'),
             scaleInputM = document.createElement('input'),
             panel = document.createElement('div');
@@ -30,7 +67,5 @@ export default class Customizator {
         panel.classList.add('panel');
 
         document.querySelector('body').append(panel);
-
-        console.log(this.btnBlock, scaleInputS, scaleInputM);
     }
 };
